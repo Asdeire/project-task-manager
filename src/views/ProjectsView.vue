@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProjectStore } from '@/stores/projectStore'
 import { useNotificationStore } from '@/stores/notificationStore'
@@ -40,14 +40,17 @@ const projectStore = useProjectStore()
 
 const isModalOpen = ref(false)
 
-const filters = ref({ name: '', status: '' })
-const sort = ref<{ key: keyof Project, order: 'asc' | 'desc' }>({ key: 'id', order: 'asc' })
+const savedFilters = localStorage.getItem('projectsFilters')
+const filters = ref(
+    savedFilters ? JSON.parse(savedFilters) : { name: '', status: '' }
+)
+
+const savedSort = localStorage.getItem('projectsSort')
+const sort = ref<{ key: keyof Project, order: 'desc' | 'asc' }>(
+    savedSort ? JSON.parse(savedSort) : { key: 'id', order: 'desc' }
+)
 
 const notify = useNotificationStore()
-
-onMounted(() => {
-    projectStore.fetchProjects()
-})
 
 const filteredAndSortedProjects = computed(() => {
     let result = projectStore.projects
@@ -75,7 +78,7 @@ const filteredAndSortedProjects = computed(() => {
 
 const handleSort = (key: keyof Project) => {
     if (sort.value.key === key) {
-        sort.value.order = sort.value.order === 'desc' ? 'asc' : 'desc'
+        sort.value.order = sort.value.order === 'asc' ? 'desc' : 'asc'
     } else {
         sort.value.key = key
         sort.value.order = 'asc'
@@ -91,6 +94,18 @@ const handleSaveProject = async (projectData: { name: string, description: strin
 const goToProject = (id: string) => {
     router.push(`/project/${id}`)
 }
+
+watch(filters, (newVal) => {
+    localStorage.setItem('projectsFilters', JSON.stringify(newVal))
+}, { deep: true })
+
+watch(sort, (newVal) => {
+    localStorage.setItem('projectsSort', JSON.stringify(newVal))
+}, { deep: true })
+
+onMounted(() => {
+    projectStore.fetchProjects()
+})
 </script>
 
 <style scoped lang="scss">

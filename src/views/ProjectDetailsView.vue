@@ -66,17 +66,16 @@ watch(viewMode, (newVal) => localStorage.setItem('viewMode', newVal))
 const isModalOpen = ref(false)
 const selectedTask = ref<Task | null>(null)
 
-const filters = ref({ assignee: '', status: '' })
-const sort = ref<{ key: keyof Task, order: 'asc' | 'desc' }>({ key: 'order', order: 'asc' })
+const savedTasksFilters = localStorage.getItem('tasksFilters')
+const filters = ref(
+    savedTasksFilters ? JSON.parse(savedTasksFilters) : { assignee: '', status: '' }
+)
 
+const savedTasksSort = localStorage.getItem('tasksSort')
+const sort = ref<{ key: keyof Task, order: 'asc' | 'desc' }>(
+    savedTasksSort ? JSON.parse(savedTasksSort) : { key: 'order', order: 'asc' }
+)
 const notify = useNotificationStore()
-
-onMounted(async () => {
-    if (projectStore.projects.length === 0) {
-        await projectStore.fetchProjects()
-    }
-    await taskStore.fetchTasks(projectId)
-})
 
 const filteredAndSortedTasks = computed(() => {
     let result = taskStore.tasks.filter(t => t.projectId === projectId)
@@ -154,6 +153,21 @@ const handleKanbanTasksUpdate = (updatedTasks: Task[]) => {
         })
     })
 }
+
+watch(filters, (newVal) => {
+    localStorage.setItem('tasksFilters', JSON.stringify(newVal))
+}, { deep: true })
+
+watch(sort, (newVal) => {
+    localStorage.setItem('tasksSort', JSON.stringify(newVal))
+}, { deep: true })
+
+onMounted(async () => {
+    if (projectStore.projects.length === 0) {
+        await projectStore.fetchProjects()
+    }
+    await taskStore.fetchTasks(projectId)
+})
 </script>
 
 <style lang="scss">
