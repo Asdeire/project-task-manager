@@ -1,0 +1,47 @@
+@use 'variables' as *;
+
+button {
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: background-color 0.2s;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: $primary-color;
+    color: white;
+    padding: 10px 20px;
+    border-radius: $border-radius-md;
+    font-weight: bold;
+
+    &:hover {
+        background: $primary-hover;
+    }
+}
+
+.btn-cancel {
+    background: #eee;
+    padding: 8px 16px;
+    border-radius: $border-radius-sm;
+
+    &:hover {
+        background: #ddd;
+    }
+}
+
+.btn-submit {
+    @extend .btn-primary;
+    padding: 8px 16px;
+}
+
+.btn-back {
+    background: none;
+    color: $primary-color;
+    font-size: 16px;
+    padding: 0;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}

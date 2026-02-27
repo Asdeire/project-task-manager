@@ -1,0 +1,73 @@
+@use 'variables' as *;
+
+.table-container {
+    overflow-x: auto;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+
+    th {
+        background: $bg-light;
+        padding: 12px;
+        text-align: left;
+        cursor: pointer;
+        position: relative;
+        user-select: none;
+        border-bottom: 2px solid $border-color;
+        font-weight: 600;
+        color: $text-dark;
+
+        &:hover {
+            background: darken($bg-light, 3%);
+        }
+    }
+
+    td {
+        padding: 12px;
+        border-bottom: 1px solid #eaeaea;
+        background: white;
+        color: #444;
+        transition: background-color 0.15s ease;
+    }
+
+    tr {
+        &:hover td {
+            background: #fdfdfd;
+        }
+
+        &[style*="cursor: pointer"]:hover td {
+            background: #f4f8ff;
+        }
+    }
+}
+
+.resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 5px;
+    height: 100%;
+    cursor: col-resize;
+    user-select: none;
+    z-index: 1;
+
+    &:hover,
+    &:active {
+        background: $primary-color;
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 32px;
+    color: $text-muted;
+    font-style: italic;
+    font-size: 14px;
+}
