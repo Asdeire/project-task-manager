@@ -29,8 +29,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProjectStore } from '@/stores/projectStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 import ProjectsTable from '@/components/projects/ProjectsTable.vue'
 import AddProjectModal from '@/components/projects/AddProjectModal.vue'
+
 import type { Project } from '@/types'
 
 const router = useRouter()
@@ -40,6 +42,8 @@ const isModalOpen = ref(false)
 
 const filters = ref({ name: '', status: '' })
 const sort = ref<{ key: keyof Project, order: 'asc' | 'desc' }>({ key: 'id', order: 'asc' })
+
+const notify = useNotificationStore()
 
 onMounted(() => {
     projectStore.fetchProjects()
@@ -80,6 +84,7 @@ const handleSort = (key: keyof Project) => {
 
 const handleSaveProject = async (projectData: { name: string, description: string }) => {
     await projectStore.addProject(projectData)
+    notify.show('Проєкт успішно створено!', 'success')
     isModalOpen.value = false
 }
 

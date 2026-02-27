@@ -42,11 +42,11 @@
 </template>
 
 <script setup lang="ts">
-
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTaskStore } from '@/stores/taskStore'
 import { useProjectStore } from '@/stores/projectStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 import TasksTable from '@/components/tasks/TasksTable.vue'
 import TaskModal from '@/components/tasks/TaskModal.vue'
 import KanbanBoard from '@/components/tasks/KanbanBoard.vue'
@@ -68,6 +68,8 @@ const selectedTask = ref<Task | null>(null)
 
 const filters = ref({ assignee: '', status: '' })
 const sort = ref<{ key: keyof Task, order: 'asc' | 'desc' }>({ key: 'order', order: 'asc' })
+
+const notify = useNotificationStore()
 
 onMounted(async () => {
     if (projectStore.projects.length === 0) {
@@ -122,6 +124,7 @@ const handleSaveTask = async (taskData: any) => {
     if (taskData.id) {
         const { id, ...updates } = taskData
         await taskStore.updateTask(id, updates)
+        notify.show('Завдання успішно оновлено!', 'success')
     } else {
         const newTask = {
             ...taskData,
@@ -129,6 +132,7 @@ const handleSaveTask = async (taskData: any) => {
             order: taskStore.tasks.length + 1
         }
         await taskStore.addTask(newTask)
+        notify.show('Завдання успішно створено!', 'success')
     }
     isModalOpen.value = false
 }
