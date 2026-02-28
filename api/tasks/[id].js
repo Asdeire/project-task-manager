@@ -1,6 +1,4 @@
-import db from '../../db.json';
-
-let tasks = db.tasks || [];
+let tasks = [];
 
 export default function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
