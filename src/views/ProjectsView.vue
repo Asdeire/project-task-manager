@@ -4,6 +4,8 @@
             <h1>Проєкти</h1>
         </div>
 
+        <ProjectsStatistics />
+
         <div class="controls">
             <div class="filters">
                 <input v-model="filters.name" type="text" placeholder="Пошук за назвою..." class="search-input" />
@@ -29,31 +31,39 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProjectStore } from '@/stores/projectStore'
-import { useNotificationStore } from '@/stores/notificationStore'
+import { useTaskStore } from '@/stores/taskStore'
 import ProjectsTable from '@/components/projects/ProjectsTable.vue'
 import AddProjectModal from '@/components/projects/AddProjectModal.vue'
-
+import ProjectsStatistics from '@/components/projects/ProjectsStatistics.vue'
 import type { Project } from '@/types'
 
 const router = useRouter()
 const projectStore = useProjectStore()
+const taskStore = useTaskStore()
 
 const isModalOpen = ref(false)
 
 const savedFilters = localStorage.getItem('projectsFilters')
-const filters = ref(
-    savedFilters ? JSON.parse(savedFilters) : { name: '', status: '' }
-)
+const filters = ref(savedFilters ? JSON.parse(savedFilters) : { name: '', status: '' })
 
 const savedSort = localStorage.getItem('projectsSort')
-const sort = ref<{ key: keyof Project, order: 'desc' | 'asc' }>(
-    savedSort ? JSON.parse(savedSort) : { key: 'id', order: 'desc' }
+const sort = ref<{ key: keyof Project, order: 'asc' | 'desc' }>(
+    savedSort ? JSON.parse(savedSort) : { key: 'id', order: 'asc' }
 )
 
-const notify = useNotificationStore()
+watch(filters, (newVal) => localStorage.setItem('projectsFilters', JSON.stringify(newVal)), { deep: true })
+watch(sort, (newVal) => localStorage.setItem('projectsSort', JSON.stringify(newVal)), { deep: true })
+
+onMounted(async () => {
+    await projectStore.fetchProjects()
+    await taskStore.fetchTasks() 
+})
 
 const filteredAndSortedProjects = computed(() => {
-    let result = projectStore.projects
+    let result = projectStore.projects.map(project => ({
+        ...project,
+        taskCount: taskStore.tasks.filter(t => t.projectId === project.id).length
+    }))
 
     if (filters.value.name) {
         const query = filters.value.name.toLowerCase()
@@ -63,7 +73,7 @@ const filteredAndSortedProjects = computed(() => {
         result = result.filter(p => p.status === filters.value.status)
     }
 
-    return [...result].sort((a, b) => {
+    return result.slice().sort((a, b) => {
         let valA = a[sort.value.key]
         let valB = b[sort.value.key]
 
@@ -87,25 +97,12 @@ const handleSort = (key: keyof Project) => {
 
 const handleSaveProject = async (projectData: { name: string, description: string }) => {
     await projectStore.addProject(projectData)
-    notify.show('Проєкт успішно створено!', 'success')
     isModalOpen.value = false
 }
 
 const goToProject = (id: string) => {
     router.push(`/project/${id}`)
 }
-
-watch(filters, (newVal) => {
-    localStorage.setItem('projectsFilters', JSON.stringify(newVal))
-}, { deep: true })
-
-watch(sort, (newVal) => {
-    localStorage.setItem('projectsSort', JSON.stringify(newVal))
-}, { deep: true })
-
-onMounted(() => {
-    projectStore.fetchProjects()
-})
 </script>
 
 <style scoped lang="scss">
