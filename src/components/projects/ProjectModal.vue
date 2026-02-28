@@ -16,6 +16,14 @@
                         placeholder="Короткий опис проєкту"></textarea>
                 </div>
 
+                <div class="form-group" v-if="isEdit">
+                    <label for="status">Статус проєкту</label>
+                    <select id="status" v-model="form.status">
+                        <option value="Active">Active</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+
                 <div class="modal-actions">
                     <button type="button" class="btn-cancel" @click="$emit('close')">Скасувати</button>
                     <button type="submit" class="btn-submit">Зберегти</button>
@@ -27,7 +35,7 @@
 
 <script setup lang="ts">
 import { reactive, computed, onMounted } from 'vue'
-import type { Project } from '@/types'
+import type { Project, ProjectStatus } from '@/types'
 
 const props = defineProps<{
     project?: Project | null
@@ -39,7 +47,8 @@ const isEdit = computed(() => !!props.project)
 
 const form = reactive({
     name: '',
-    description: ''
+    description: '',
+    status: 'Active' as ProjectStatus
 })
 
 const vErrors = reactive({
@@ -50,6 +59,7 @@ onMounted(() => {
     if (props.project) {
         form.name = props.project.name
         form.description = props.project.description
+        form.status = props.project.status 
     }
 })
 
