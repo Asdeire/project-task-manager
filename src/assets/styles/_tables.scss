@@ -35,6 +35,11 @@ table {
         background: white;
         color: #444;
         transition: background-color 0.15s ease;
+
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        vertical-align: top;
     }
 
     tr {

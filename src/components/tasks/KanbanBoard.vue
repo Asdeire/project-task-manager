@@ -51,7 +51,7 @@ watch(() => props.tasks, (newTasks) => {
     statuses.forEach(status => {
         columns.value[status] = newTasks
             .filter(t => t.status === status)
-            .sort((a, b) => a.order - b.order) 
+            .sort((a, b) => a.order - b.order)
     })
 }, { immediate: true, deep: true })
 
@@ -173,13 +173,30 @@ const isOverdue = (task: Task) => {
     font-size: 14px;
     font-weight: 500;
     color: #333;
+
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    line-height: 1.4;
 }
 
 .card-footer {
     display: flex;
     justify-content: space-between;
+    align-items: flex-end;
     font-size: 12px;
     color: #666;
+    gap: 8px;
+
+    .assignee {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        flex: 1;
+    }
+
+    .due-date {
+        white-space: nowrap;
+    }
 
     .overdue {
         color: #e74c3c;
