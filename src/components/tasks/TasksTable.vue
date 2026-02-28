@@ -14,7 +14,12 @@
             <draggable v-model="localTasks" tag="tbody" item-key="id" handle=".drag-handle" @end="onDragEnd">
                 <template #item="{ element }">
                     <tr @click="$emit('row-click', element)" style="cursor: pointer;">
-                        <td><span class="drag-handle">☰</span> {{ element.id }}</td>
+                        <td>
+                            <div class="id-cell">
+                                <span class="drag-handle" @click.stop>☰</span>
+                                <span>{{ element.id }}</span>
+                            </div>
+                        </td>
                         <td>{{ element.title }}</td>
                         <td>{{ element.assignee || 'Не призначено' }}</td>
                         <td>
@@ -95,5 +100,17 @@ const onMouseUp = () => { activeCol = null; document.removeEventListener('mousem
 .done {
     background: #d4edda;
     color: #155724;
+}
+
+.id-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.drag-handle {
+    cursor: grab;
+    color: #999;
+    flex-shrink: 0;
 }
 </style>
