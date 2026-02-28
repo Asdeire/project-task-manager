@@ -1,21 +1,29 @@
-const jsonServer = require('json-server')
+const db = require('../db.json');
 
-const server = jsonServer.create()
+module.exports = (req, res) => {
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
-const db = require('../db.json')
-const router = jsonServer.router(db)
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
 
-const middlewares = jsonServer.defaults()
+    const url = req.url || '';
 
-server.use(middlewares)
+    if (url.includes('/projects')) {
+        if (req.method === 'GET') return res.status(200).json(db.projects || []);
+        if (req.method === 'POST') return res.status(201).json({ id: Date.now().toString(), ...req.body });
+        return res.status(200).json(req.body || {}); // Для PATCH/DELETE
+    }
 
-server.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*')
-    res.header('Access-Control-Allow-Headers', '*')
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
-    next()
-})
+    if (url.includes('/tasks')) {
+        if (req.method === 'GET') return res.status(200).json(db.tasks || []);
+        if (req.method === 'POST') return res.status(201).json({ id: Date.now().toString(), ...req.body });
+        return res.status(200).json(req.body || {}); // Для PATCH/DELETE
+    }
 
-server.use(router)
-
-module.exports = server
+    res.status(404).json({ error: 'Endpoint not found' });
+};
