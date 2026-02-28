@@ -1,42 +1,78 @@
-# project-task-manager
+# Project & Task Manager (Vue 3 SPA)
 
-This template should help get you started developing with Vue 3 in Vite.
+A Single Page Application (SPA) for managing projects and their associated tasks, developed as a technical assessment for a Frontend Developer position.
 
-## Recommended IDE Setup
+🔗 **[Live Demo on Vercel](https://project-task-manager-indol.vercel.app/)**
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+---
 
-## Recommended Browser Setup
+## 🛠 Tech Stack
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+- **Framework:** Vue.js 3 (Composition API)  
+- **Language:** TypeScript  
+- **State Management:** Pinia (with LocalStorage synchronization)  
+- **HTTP Client:** Axios (with a custom Mock API adapter for production)  
+- **Styling:** SCSS  
+- **Drag-and-Drop:** VueDraggable Next  
 
-## Type Support for `.vue` Imports in TS
+---
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## ✨ Key Features
 
-## Customize configuration
+- **Project Management (CRUD):** Create, read, update, and delete projects.  
+- **Task Management (CRUD):** Add, edit, and delete tasks within specific projects.  
+- **Interactive Data Tables:**
+  - Sort by columns.
+  - Filter data by text and status.
+  - Custom column resizing (drag to resize).
+  - Responsive text wrapping and truncation for optimal UI.
+- **Kanban Board:** A dedicated view for tasks featuring drag-and-drop to easily change task statuses and reorder them.  
+- **Data Persistence:** Global state is deeply synced with `LocalStorage` so users never lose their data upon page refresh. Saved preferences include table sorting and active filters.  
+- **UI/UX Enhancements:**
+  - Global toast notification system for user feedback.
+  - Dashboard statistics showing task distribution by status.
+  - Seamless switching between Table and Kanban views.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+---
 
-## Project Setup
+## 🚀 Local Development Setup
 
-```sh
-npm install
-```
+To run this project locally, you need Node.js installed on your machine.
 
-### Compile and Hot-Reload for Development
+1. **Clone the repository:**
+    ```bash
+    git clone <your-repo-url>
+    cd project-task-manager
+    ```
 
-```sh
-npm run dev
-```
+2. **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-### Type-Check, Compile and Minify for Production
+3. **Start the local mock API (JSON Server):**  
+   Open a terminal and run the database server. It will watch `db.json` and run on port `3001`.
+    ```bash
+    npm run server
+    ```
 
-```sh
-npm run build
-```
+4. **Start the Vite development server:**  
+   Open a second terminal window/tab and run:
+    ```bash
+    npm run dev
+    ```
+   The application will be available at [http://localhost:5173](http://localhost:5173).
+
+---
+
+## 📦 Deployment Process
+
+This project is deployed on Vercel.
+
+To meet the requirement of functioning correctly without a local backend (while maintaining full CRUD capabilities and state persistence), a special approach was used for production:
+
+- **Mock API via Axios Interceptors:**  
+  In the production environment (`import.meta.env.PROD`), Axios is configured with an interceptor that acts as an in-browser backend. It intercepts HTTP requests, simulates network latency, and performs full CRUD operations directly against the browser's `LocalStorage`.
+
+- **Routing:**  
+  A `vercel.json` file is included to rewrite all incoming traffic to `index.html`, ensuring Vue Router handles SPA navigation flawlessly without triggering 404 errors on direct URL visits or page reloads.
