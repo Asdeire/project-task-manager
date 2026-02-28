@@ -1,7 +1,7 @@
 <template>
     <div class="modal-overlay" @click.self="$emit('close')">
         <div class="modal-content">
-            <h2>Додати новий проєкт</h2>
+            <h2>{{ isEdit ? 'Редагувати проєкт' : 'Додати новий проєкт' }}</h2>
             <form @submit.prevent="submitForm">
                 <div class="form-group">
                     <label for="name">Назва проєкту *</label>
@@ -26,9 +26,16 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, computed, onMounted } from 'vue'
+import type { Project } from '@/types'
+
+const props = defineProps<{
+    project?: Project | null
+}>()
 
 const emit = defineEmits(['close', 'save'])
+
+const isEdit = computed(() => !!props.project)
 
 const form = reactive({
     name: '',
@@ -39,15 +46,21 @@ const vErrors = reactive({
     name: false
 })
 
+onMounted(() => {
+    if (props.project) {
+        form.name = props.project.name
+        form.description = props.project.description
+    }
+})
+
 const submitForm = () => {
     if (!form.name.trim()) {
         vErrors.name = true
         return
     }
     vErrors.name = false
-    emit('save', { ...form })
+    emit('save', { ...form, id: props.project?.id })
 }
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

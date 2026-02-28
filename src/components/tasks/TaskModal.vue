@@ -37,8 +37,12 @@
                 </div>
 
                 <div class="modal-actions">
-                    <button type="button" class="btn-cancel" @click="$emit('close')">Скасувати</button>
-                    <button type="submit" class="btn-submit">Зберегти</button>
+                    <button v-if="isEdit" type="button" class="btn-danger" @click="handleDelete">Видалити</button>
+
+                    <div class="right-buttons">
+                        <button type="button" class="btn-cancel" @click="$emit('close')">Скасувати</button>
+                        <button type="submit" class="btn-submit">Зберегти</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -50,10 +54,10 @@ import { reactive, computed, onMounted } from 'vue'
 import type { Task, TaskStatus } from '@/types'
 
 const props = defineProps<{
-    task?: Task | null 
+    task?: Task | null
 }>()
 
-const emit = defineEmits(['close', 'save'])
+const emit = defineEmits(['close', 'save', 'delete'])
 
 const today: string = new Date().toISOString().split('T')[0] ?? ''
 
@@ -70,6 +74,12 @@ const vErrors = reactive({
     title: false,
     dueDate: false
 })
+
+const handleDelete = () => {
+    if (window.confirm('Точно видалити це завдання?')) {
+        emit('delete', props.task?.id)
+    }
+}
 
 onMounted(() => {
     if (props.task) {
@@ -90,5 +100,27 @@ const submitForm = () => {
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+}
+
+.right-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-danger {
+    background: #e74c3c;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
 </style>

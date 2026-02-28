@@ -37,7 +37,8 @@
                 @update-tasks="handleKanbanTasksUpdate" />
         </template>
 
-        <TaskModal v-if="isModalOpen" :task="selectedTask" @close="isModalOpen = false" @save="handleSaveTask" />
+        <TaskModal v-if="isModalOpen" :task="selectedTask" @close="isModalOpen = false" @save="handleSaveTask"
+            @delete="handleDeleteTask" />
     </div>
 </template>
 
@@ -133,6 +134,11 @@ const handleSaveTask = async (taskData: any) => {
         await taskStore.addTask(newTask)
         notify.show('Завдання успішно створено!', 'success')
     }
+    isModalOpen.value = false
+}
+
+const handleDeleteTask = async (id: string) => {
+    await taskStore.deleteTask(id)
     isModalOpen.value = false
 }
 

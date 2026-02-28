@@ -19,6 +19,16 @@
                     <td>{{ project.taskCount }}</td>
                     <td>{{ project.status }}</td>
                     <td>{{ new Date(project.createdAt).toLocaleDateString() }}</td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="btn-icon edit" @click.stop="$emit('edit', project)" title="Редагувати">
+                                ✏️
+                            </button>
+                            <button class="btn-icon delete" @click.stop="$emit('delete', project.id)" title="Видалити">
+                                🗑️
+                            </button>
+                        </div>
+                    </td>
                 </tr>
                 <tr v-if="projects.length === 0">
                     <td colspan="5" class="empty-state">Проєкти не знайдено</td>
@@ -38,14 +48,15 @@ defineProps<{
     sortOrder: 'asc' | 'desc'
 }>()
 
-defineEmits(['sort', 'row-click'])
+defineEmits(['sort', 'row-click', 'edit', 'delete'])
 
 const columns = ref([
     { key: 'id', label: 'ID', width: 80 },
     { key: 'name', label: 'Назва проєкту', width: 250 },
     { key: 'taskCount', label: 'Завдання', width: 120 },
     { key: 'status', label: 'Статус', width: 120 },
-    { key: 'createdAt', label: 'Дата створення', width: 150 }
+    { key: 'createdAt', label: 'Дата створення', width: 150 },
+    { key: 'actions', label: 'Дії', width: 80 }
 ])
 
 let startX = 0
@@ -74,4 +85,17 @@ const onMouseUp = () => {
 }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.6;
+    transition: 0.2s;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+</style>

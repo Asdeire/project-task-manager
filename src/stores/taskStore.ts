@@ -51,5 +51,22 @@ export const useTaskStore = defineStore('taskStore', () => {
         }
     };
 
-    return { tasks, isLoading, error, fetchTasks, addTask, updateTask };
+    const deleteTask = async (id: string) => {
+        try {
+            await api.delete(`/tasks/${id}`);
+            tasks.value = tasks.value.filter(t => t.id !== id);
+        } catch (err: any) {
+            error.value = err.message;
+        }
+    };
+
+    const deleteTasksByProjectId = async (projectId: string) => {
+        const tasksToDelete = tasks.value.filter(t => t.projectId === projectId);
+
+        for (const task of tasksToDelete) {
+            await deleteTask(task.id);
+        }
+    };
+
+    return { tasks, isLoading, error, fetchTasks, addTask, updateTask, deleteTask, deleteTasksByProjectId };
 });

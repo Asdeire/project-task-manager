@@ -15,15 +15,16 @@
                     <option value="Completed">Completed</option>
                 </select>
             </div>
-            <button class="btn-primary" @click="isModalOpen = true">Додати проєкт</button>
+            <button class="btn-primary" @click="openCreateModal">Додати проєкт</button>
         </div>
 
         <div v-if="projectStore.isLoading">Завантаження...</div>
 
         <ProjectsTable v-else :projects="filteredAndSortedProjects" :sort-key="sort.key" :sort-order="sort.order"
-            @sort="handleSort" @row-click="goToProject" />
+            @sort="handleSort" @row-click="goToProject" @delete="handleDeleteProject" @edit="openEditModal"/>
 
-        <AddProjectModal v-if="isModalOpen" @close="isModalOpen = false" @save="handleSaveProject" />
+        <ProjectModal v-if="isModalOpen" :project="selectedProject" @close="isModalOpen = false"
+            @save="handleSaveProject" />
     </div>
 </template>
 
@@ -32,16 +33,19 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProjectStore } from '@/stores/projectStore'
 import { useTaskStore } from '@/stores/taskStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 import ProjectsTable from '@/components/projects/ProjectsTable.vue'
-import AddProjectModal from '@/components/projects/AddProjectModal.vue'
+import ProjectModal from '@/components/projects/ProjectModal.vue'
 import ProjectsStatistics from '@/components/projects/ProjectsStatistics.vue'
 import type { Project } from '@/types'
 
 const router = useRouter()
 const projectStore = useProjectStore()
 const taskStore = useTaskStore()
+const notify = useNotificationStore()
 
 const isModalOpen = ref(false)
+const selectedProject = ref<Project | null>(null)
 
 const savedFilters = localStorage.getItem('projectsFilters')
 const filters = ref(savedFilters ? JSON.parse(savedFilters) : { name: '', status: '' })
@@ -56,7 +60,7 @@ watch(sort, (newVal) => localStorage.setItem('projectsSort', JSON.stringify(newV
 
 onMounted(async () => {
     await projectStore.fetchProjects()
-    await taskStore.fetchTasks() 
+    await taskStore.fetchTasks()
 })
 
 const filteredAndSortedProjects = computed(() => {
@@ -95,9 +99,31 @@ const handleSort = (key: keyof Project) => {
     }
 }
 
-const handleSaveProject = async (projectData: { name: string, description: string }) => {
-    await projectStore.addProject(projectData)
+const openCreateModal = () => {
+    selectedProject.value = null
+    isModalOpen.value = true
+}
+
+const openEditModal = (project: Project) => {
+    selectedProject.value = project
+    isModalOpen.value = true
+}
+
+const handleSaveProject = async (projectData: any) => {
+    if (projectData.id) {
+        const { id, ...updates } = projectData
+        await projectStore.updateProject(id, updates)
+    } else {
+        await projectStore.addProject(projectData)
+    }
     isModalOpen.value = false
+}
+
+const handleDeleteProject = async (id: string) => {
+    if (window.confirm('Ви впевнені? Проєкт та ВСІ його завдання будуть безповоротно видалені.')) {
+        await taskStore.deleteTasksByProjectId(id)
+        await projectStore.deleteProject(id)
+    }
 }
 
 const goToProject = (id: string) => {

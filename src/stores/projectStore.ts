@@ -20,7 +20,7 @@ export const useProjectStore = defineStore('projectStore', () => {
     const fetchProjects = async () => {
         isLoading.value = true;
         try {
-            const { data } = await api.get<Project[]>('/projects'); 
+            const { data } = await api.get<Project[]>('/projects');
             projects.value = data;
         } catch (err: any) {
             error.value = err.message;
@@ -44,5 +44,26 @@ export const useProjectStore = defineStore('projectStore', () => {
         }
     };
 
-    return { projects, isLoading, error, fetchProjects, addProject };
+    const updateProject = async (id: string, updates: Partial<Project>) => {
+        try {
+            const { data } = await api.patch<Project>(`/projects/${id}`, updates);
+            const index = projects.value.findIndex(p => p.id === id);
+            if (index !== -1) {
+                projects.value[index] = { ...projects.value[index], ...data };
+            }
+        } catch (err: any) {
+            error.value = err.message;
+        }
+    };
+
+    const deleteProject = async (id: string) => {
+        try {
+            await api.delete(`/projects/${id}`);
+            projects.value = projects.value.filter(p => p.id !== id);
+        } catch (err: any) {
+            error.value = err.message;
+        }
+    };
+
+    return { projects, isLoading, error, fetchProjects, addProject, updateProject, deleteProject };
 });
