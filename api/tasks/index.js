@@ -1,4 +1,4 @@
-let tasks = [];
+import { readDB, writeDB } from '../lib/db';
 
 export default function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
